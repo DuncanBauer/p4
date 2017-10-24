@@ -1,0 +1,8 @@
+ERROR:root:Error in bot.
+Traceback (most recent call last):
+  File "opponent_bots/aggressive_bot.py", line 75, in <module>
+    current_line = input()
+  File "<string>", line 1
+    P 11.669420 11.608776 0 40 2
+              ^
+SyntaxError: invalid syntax

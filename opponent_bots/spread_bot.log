@@ -1,0 +1,8 @@
+ERROR:root:Error in bot.
+Traceback (most recent call last):
+  File "opponent_bots/spread_bot.py", line 76, in <module>
+    current_line = input()
+  File "<string>", line 1
+    P 10.861100 11.507798 0 142 4
+              ^
+SyntaxError: invalid syntax
