@@ -173,24 +173,58 @@ def defend(state):
         return p.num_ships \
                + sum(fleet.num_ships for fleet in state.my_fleets() if fleet.destination_planet == p.ID) \
                - sum(fleet.num_ships for fleet in state.enemy_fleets() if fleet.destination_planet == p.ID)
-    #incoming = [fleet for fleet in state.enemy_fleets()
-    #            if state.my_planets().contains(fleet.destination_planet)]
-    #inbound = {}
-    #for boogie in incoming:
-    #    if boogie.destination_planet in inbound:
-    #        inbound[boogie.destination_planet] += boogie.num_ships
-    #    else:
-    #        inbound[boogie.destination_planet] = boogie.num_ships
 
-    #reinforcements = [fleet for fleet in state.my_fleets()
-    #                  if state.my_planets().contains(fleet.destination_planet)]
-    #inbound_reinforcements = []
-    #for reinforcements in incoming:
-    #    if boogie.destination_planet in inbound:
-    #        inbound[boogie.destination_planet] += boogie.num_ships
-    #    else:
-    #        inbound[boogie.destination_planet] = boogie.num_ships
+    avg = sum(strength(planet) for planet in my_planets) / len(my_planets)
 
-    distance = {}
-    for planet in state.my_planets():
-        distance[planet.ID] = state.distance(planet, )
+    weak_planets = [planet for planet in my_planets if strength(planet) < avg]
+    strong_planets = [planet for planet in my_planets if strength(planet) > avg]
+
+    if (not weak_planets) or (not strong_planets):
+        return
+
+    weak_planets = iter(sorted(weak_planets, key=strength))
+    strong_planets = iter(sorted(strong_planets, key=strength, reverse=True))
+
+ #   distances = {}
+ #   closest = {}
+ #   for planet in weak_planets:
+ #       for strong in strong_planets:
+ #           distance = state.distance(planet.ID, strong.ID)
+ #           if planet.ID not in distances.keys() or distance < distances[planet.ID]:
+ #               distances[planet.ID] = distance
+ #               closest[planet.ID] = strong.ID
+
+    avg_dist = 0
+    count = 0
+    for planet in strong_planets:
+        for weak in weak_planets:
+            avg_dist += state.distance(planet.ID, weak.ID)
+            count += 1
+    avg_dist /= count
+    logging.info("dist")
+    logging.info(avg_dist)
+    try:
+        weak_planet = next(weak_planets)
+        strong_planet = next(strong_planets)
+        while True:
+            need = abs(int(strength(weak_planet)))
+            have = abs(int(strength(strong_planet)))
+            logging.info("need")
+            logging.info(need)
+            logging.info("have")
+            logging.info(have)
+
+            if have >= need > 0 and state.distance(strong_planet.ID, weak_planet.ID) <= avg_dist:
+                logging.info("Issuing order")
+                issue_order(state, strong_planet.ID, weak_planet.ID, need)
+                weak_planet = next(weak_planets)
+            #elif have > 0:
+            #    issue_order(state, strong_planet.ID, weak_planet.ID, have)
+            #    strong_planet = next(strong_planets)
+            else:
+                strong_planet = next(strong_planets)
+
+    except StopIteration:
+        return
+
+    return False
