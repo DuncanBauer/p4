@@ -98,30 +98,10 @@ def attack_close_neutral_planet(state):
 
 
 def wide_spread(state):
-    """
-    attacked_planets = []
-    for fleet in state.my_fleets():
-        attacked_planets.append(fleet.destination_planet)
-    strongest_planet = max(state.my_planets(), key=lambda p: p.num_ships, default=None)
-    if strongest_planet is None:
-        return False
-    candidates = [x for x in state.neutral_planets() if x.num_ships < strongest_planet.num_ships/10]
-    if not candidates:
-        return False
-    else:
-        for candidate in candidates:
-            if candidate.ID in attacked_planets:
-                continue
-            elif state.distance(strongest_planet.ID, candidate.ID) < 8:
-                return issue_order(state, strongest_planet.ID, candidate.ID, candidate.num_ships + 1)
-            else:
-                return False
-    """
-
     my_planets = iter(sorted(state.my_planets(), key=lambda p: p.num_ships, reverse=True))
     target_planets = [planet for planet in state.not_my_planets()
                       if not any(fleet.destination_planet == planet.ID for fleet in state.my_fleets())]
-    target_planets = iter(sorted(target_planets, key=lambda p: p.num_ships, reverse=True))
+    target_planets = iter(sorted(target_planets, key=lambda p: p.num_ships))
 
     try:
         my_planet = next(my_planets)
@@ -133,7 +113,7 @@ def wide_spread(state):
                 required_ships = target_planet.num_ships + \
                                  state.distance(my_planet.ID, target_planet.ID) * target_planet.growth_rate + 1
 
-            if my_planet.num_ships / 3 > required_ships:
+            if my_planet.num_ships * 1.25 > required_ships:
                 issue_order(state, my_planet.ID, target_planet.ID, required_ships)
                 my_planet = next(my_planets)
                 target_planet = next(target_planets)
