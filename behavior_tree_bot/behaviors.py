@@ -53,7 +53,7 @@ def attack_close_enemy_planet(state):
             distance = state.distance(source.ID, target.ID)
             required_ships = target.num_ships + distance * target.growth_rate + 1
             if distance <= 5 and source.num_ships / 1.25 > required_ships:
-                return issue_order(state, source.ID, target.ID, required_ships)
+                issue_order(state, source.ID, target.ID, required_ships)
     return False
 
 
@@ -67,7 +67,7 @@ def attack_close_neutral_planet(state):
         for target in target_planets:
             distance = state.distance(source.ID, target.ID)
             if distance <= 5 and source.num_ships / 1.25 > target.num_ships:
-                return issue_order(state, source.ID, target.ID, target.num_ships + 1)
+                issue_order(state, source.ID, target.ID, target.num_ships + 1)
     return False
 
 
