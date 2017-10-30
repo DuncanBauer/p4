@@ -9,6 +9,7 @@ def attack_weakest_enemy_planet(state):
     if len(state.my_fleets()) >= 1:
         return False
 
+    """
     # (2) Find my strongest planet.
     strongest_planet = max(state.my_planets(), key=lambda t: t.num_ships, default=None)
 
@@ -21,7 +22,31 @@ def attack_weakest_enemy_planet(state):
     else:
         # (4) Send half the ships from my strongest planet to the weakest enemy planet.
         return issue_order(state, strongest_planet.ID, weakest_planet.ID, strongest_planet.num_ships / 2)
+    """
+    my_planets = iter(sorted(state.my_planets(), key=lambda p: p.num_ships))
 
+    enemy_planets = [planet for planet in state.enemy_planets()
+                      if not any(fleet.destination_planet == planet.ID for fleet in state.my_fleets())]
+    enemy_planets.sort(key=lambda p: p.num_ships)
+
+    target_planets = iter(enemy_planets)
+
+    try:
+        my_planet = next(my_planets)
+        target_planet = next(target_planets)
+        while True:
+            required_ships = target_planet.num_ships + \
+                                 state.distance(my_planet.ID, target_planet.ID) * target_planet.growth_rate + 1
+
+            if my_planet.num_ships > required_ships:
+                issue_order(state, my_planet.ID, target_planet.ID, required_ships)
+                my_planet = next(my_planets)
+                target_planet = next(target_planets)
+            else:
+                my_planet = next(my_planets)
+
+    except StopIteration:
+        return
 
 def spread_to_weakest_neutral_planet(state):
     # (1) If we currently have a fleet in flight, just do nothing.
@@ -169,35 +194,4 @@ def defend(state):
                     inbound[weak_planet.ID] = need
                 else:
                     inbound[weak_planet.ID] += need
-    """
-    try:
-        logging.info("not even in")
-        logging.info(weak_planets.)
-        logging.info(strong_planets)
-        weak_planet = next(weak_planets)
-        strong_planet = next(strong_planets)
-        logging.info("not even in yet")
-        while True:
-            need = abs(int(strength(weak_planet)))
-            have = abs(int(strength(strong_planet)))
-            logging.info("need")
-            logging.info(need)
-            logging.info("have")
-            logging.info(have)
-
-            if have >= need > 0 and state.distance(strong_planet.ID, weak_planet.ID) <= avg_dist:
-                logging.info("Issuing order")
-                issue_order(state, strong_planet.ID, weak_planet.ID, need)
-                weak_planet = next(weak_planets)
-            #elif have > 0:
-            #    issue_order(state, strong_planet.ID, weak_planet.ID, have)
-            #    strong_planet = next(strong_planets)
-            else:
-                strong_planet = next(strong_planets)
-
-    except StopIteration:
-        logging.info("Shit got fucked up")
-        return
-    """
-
     return False
