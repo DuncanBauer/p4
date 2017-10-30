@@ -25,6 +25,10 @@ def setup_behavior_tree():
     # Top-down construction of behavior tree
     root = Selector(name='High Level Ordering of Strategies')
 
+    #spread_out_plan = Sequence(name='Spread Out Strategy')
+    #spread_out_attack = Action(wide_spread)
+    #spread_out_plan.child_nodes = [spread_out_attack]
+
     close_planet_plan = Selector(name='Close Planet Strategy')
     close_enemy_planet_attack = Action(attack_close_enemy_planet)
     close_neutral_planet_attack = Action(attack_close_neutral_planet)
